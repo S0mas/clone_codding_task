@@ -1,21 +1,20 @@
 #include "device.h"
 
+#include "serial_talker.hpp"
+
 #include <QDebug>
-#include <QSerialPort>
 #include <QTimer>
 
 Q_DECLARE_METATYPE(DeviceConfiguration)
 
 Device::Device(QObject* parent)
     : QObject(parent)
-    , port_{nullptr}
     , messageSenderTimer_{nullptr}
-{}
-
-Device::~Device()
 {
-    port_->close();
+    setup();
 }
+
+Device::~Device() = default;
 
 auto Device::startTransmission() const -> void
 {
@@ -33,7 +32,6 @@ auto Device::stopTransmission() const -> void
 
 auto Device::setConfiguration(const DeviceConfiguration& newConfig) -> void
 {
-    qDebug() << __func__;
     configuration_ = newConfig;
     setTimer(configuration_.frequency_);
     responseSuccess(currentMsg_);
@@ -47,58 +45,21 @@ auto Device::setup() -> void
     QObject::connect(&messageProcessor_, &MessageProcessor::setConfiguration, this, &Device::setConfiguration);
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessage, this, &Device::reportError);
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessage, this, &Device::responseFailure);
-    openPort();
+
+    serialTalker_ = std::make_unique<SerialTalker>("/home/s0mas/test");
+    messageSenderTimer_ = new QTimer(this);
+    QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendState);
+    serialTalker_->setOnReadCallback([this](auto const& msg)
+                                     {
+                                         qDebug() << "DeviceSim received msg: " << QString::fromStdString(msg);
+                                         currentMsg_ = msg;
+                                         messageProcessor_.processMessage(msg);
+                                     });
 }
 
 auto Device::sendState() const -> void
 {
-    qDebug() << __func__;
-    write(stateToString(state_) + "\n");
-}
-
-auto Device::openPort() -> void
-{
-    qDebug() << __func__;
-    port_ = new QSerialPort(this);
-    messageSenderTimer_ = new QTimer(this);
-    QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendState);
-    QObject::connect(port_, &QIODevice::readyRead, this,
-                     [this]()
-                     {
-                         currentMsg_ = read(); messageProcessor_.processMessage(currentMsg_);
-                     });
-    port_->setPortName("/home/s0mas/test");
-    auto result = port_->open(QIODeviceBase::ReadWrite | QIODeviceBase::ExistingOnly);
-    if(!result)
-    {
-        qDebug() << "Error: " << port_->errorString();
-    }
-    else
-    {
-        qDebug() << "Sucess! ";
-    }
-}
-
-auto Device::closePort() -> void
-{
-    qDebug() << __func__;
-    port_->close();
-    port_->deleteLater();
-    port_ = nullptr;
-}
-
-auto Device::read() const -> std::string
-{
-    QTextStream stream(port_);
-    QString line;
-    stream.readLineInto(&line);
-    return line.toStdString();
-}
-
-auto Device::write(const std::string& msg) const -> void
-{
-    port_->write(msg.c_str());
-    port_->flush();
+    serialTalker_->write(stateToString(state_));
 }
 
 auto Device::setTimer(const float frequency) const -> void
@@ -124,5 +85,6 @@ auto Device::responseFailure(const std::string& msg, const std::string& errorMsg
 
 auto Device::response(const std::string& msg) const -> void
 {
-    write(msg + "\n");
+    qDebug() << "Device::response " << msg;
+    serialTalker_->write(msg);
 }

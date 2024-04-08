@@ -6,7 +6,7 @@
 
 #include <QObject>
 
-class QSerialPort;
+class SerialTalker;
 class QTimer;
 
 class Device : public QObject
@@ -23,20 +23,16 @@ public slots:
     auto setup() -> void;
     auto sendState() const -> void;
 private:
-    auto openPort() -> void;
-    auto closePort() -> void;
-    auto read() const -> std::string;
-    auto write(const std::string& msg) const -> void;
     auto setTimer(const float frequency) const -> void;
     auto reportError(const std::string& msg, const std::string& errorMsg) const -> void;
     auto responseSuccess(const std::string& msg) const -> void;
     auto responseFailure(const std::string& msg, const std::string& errorMsg) const -> void;
     auto response(const std::string& msg) const -> void;
 private:
-    QSerialPort* port_;
     State state_;
     DeviceConfiguration configuration_;
     MessageProcessor messageProcessor_;
     QTimer* messageSenderTimer_;
     std::string currentMsg_;
+    std::unique_ptr<SerialTalker> serialTalker_;
 };
