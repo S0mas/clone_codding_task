@@ -92,7 +92,7 @@ auto Device::write(const std::string& msg) const -> void
     port_->flush();
 }
 
-auto Device::setTimer(const float frequency) -> void
+auto Device::setTimer(const float frequency) const -> void
 {
     const float sec = 1000.0; //ms
     messageSenderTimer_->setInterval(sec/frequency);

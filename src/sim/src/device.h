@@ -27,7 +27,7 @@ private:
     auto closePort() -> void;
     auto read() const -> std::string;
     auto write(const std::string& msg) const -> void;
-    auto setTimer(const float frequency) -> void;
+    auto setTimer(const float frequency) const -> void;
     auto reportError(const std::string& errorMsg) const -> void;
 private:
     QSerialPort* port_;
