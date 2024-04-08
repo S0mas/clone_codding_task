@@ -5,9 +5,9 @@
 #include "state.h"
 
 #include <QObject>
-#include <QTimer>
 
 class QSerialPort;
+class QTimer;
 
 class Device : public QObject
 {
@@ -33,5 +33,5 @@ private:
     State state_;
     DeviceConfiguration configuration_;
     MessageProcessor messageProcessor_;
-    QTimer messageSenderTimer_;
+    QTimer* messageSenderTimer_;
 };

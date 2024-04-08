@@ -2,11 +2,13 @@
 
 #include <QDebug>
 #include <QSerialPort>
+#include <QTimer>
 
 Q_DECLARE_METATYPE(DeviceConfiguration)
 
 Device::Device(QObject* parent)
     : QObject(parent)
+    , messageSenderTimer_{nullptr}
 {}
 
 Device::~Device()
@@ -46,6 +48,7 @@ auto Device::openPort() -> void
 {
     qDebug() << __func__;
     port_ = new QSerialPort(this);
+    messageSenderTimer_ = new QTimer(this);
     QObject::connect(port_, &QIODevice::readyRead, this, [this](){ messageProcessor_.processMessage(read()); } );
     port_->setPortName("/home/s0mas/test");
     auto result = port_->open(QIODeviceBase::ReadWrite | QIODeviceBase::ExistingOnly);
@@ -84,7 +87,7 @@ auto Device::write(const std::string& msg) const -> void
 auto Device::setTimer(const float frequency) -> void
 {
     const float sec = 1000.0; //ms
-    messageSenderTimer_.setInterval(sec/frequency);
+    messageSenderTimer_->setInterval(sec/frequency);
 }
 
 auto Device::reportError(const std::string& errorMsg) const -> void
