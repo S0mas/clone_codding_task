@@ -21,12 +21,14 @@ auto Device::startTransmission() const -> void
 {
     qDebug() << __func__;
     messageSenderTimer_->start();
+    responseSuccess(currentMsg_);
 }
 
 auto Device::stopTransmission() const -> void
 {
     qDebug() << __func__;
     messageSenderTimer_->stop();
+    responseSuccess(currentMsg_);
 }
 
 auto Device::setConfiguration(const DeviceConfiguration& newConfig) -> void
@@ -34,6 +36,7 @@ auto Device::setConfiguration(const DeviceConfiguration& newConfig) -> void
     qDebug() << __func__;
     configuration_ = newConfig;
     setTimer(configuration_.frequency_);
+    responseSuccess(currentMsg_);
 }
 
 auto Device::setup() -> void
