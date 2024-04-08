@@ -24,5 +24,5 @@ signals:
     void startTransmission();
     void stopTransmission();
     void setConfiguration(const DeviceConfiguration& configuration);
-    void invalidMessageStructure(const std::string& msg = "invalid message structure") const;
+    void invalidMessageStructure(const std::string& msg) const;
 };
