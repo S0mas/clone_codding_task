@@ -58,6 +58,7 @@ auto Device::openPort() -> void
     qDebug() << __func__;
     port_ = new QSerialPort(this);
     messageSenderTimer_ = new QTimer(this);
+    QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendState);
     QObject::connect(port_, &QIODevice::readyRead, this, [this](){ messageProcessor_.processMessage(read()); } );
     port_->setPortName("/home/s0mas/test");
     auto result = port_->open(QIODeviceBase::ReadWrite | QIODeviceBase::ExistingOnly);
