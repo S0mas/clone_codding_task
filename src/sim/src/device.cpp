@@ -8,6 +8,7 @@ Q_DECLARE_METATYPE(DeviceConfiguration)
 
 Device::Device(QObject* parent)
     : QObject(parent)
+    , port_{nullptr}
     , messageSenderTimer_{nullptr}
 {}
 
