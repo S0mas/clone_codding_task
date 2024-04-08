@@ -14,12 +14,12 @@ Device::~Device()
     port_->close();
 }
 
-auto Device::startTransmition() const -> void
+auto Device::startTransmission() const -> void
 {
     qDebug() << __func__;
 }
 
-auto Device::stopTransmition() const -> void
+auto Device::stopTransmission() const -> void
 {
     qDebug() << __func__;
 }
@@ -34,8 +34,8 @@ auto Device::setConfiguration(const DeviceConfiguration& newConfig) -> void
 auto Device::setup() -> void
 {
     qDebug() << __func__;
-    QObject::connect(&messageProcessor_, &MessageProcessor::startTransmition, this, &Device::startTransmition);
-    QObject::connect(&messageProcessor_, &MessageProcessor::stopTransmition, this, &Device::stopTransmition);
+    QObject::connect(&messageProcessor_, &MessageProcessor::startTransmission, this, &Device::startTransmission);
+    QObject::connect(&messageProcessor_, &MessageProcessor::stopTransmission, this, &Device::stopTransmission);
     QObject::connect(&messageProcessor_, &MessageProcessor::setConfiguration, this, &Device::setConfiguration);
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessageStructure, this, &Device::reportError);
     QObject::connect(&messageProcessor_, &MessageProcessor::unknownMessage, this, &Device::reportError);

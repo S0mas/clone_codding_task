@@ -17,8 +17,8 @@ public:
     ~Device();
 
 public slots:
-    auto startTransmition() const -> void;
-    auto stopTransmition() const -> void;
+    auto startTransmission() const -> void;
+    auto stopTransmission() const -> void;
     auto setConfiguration(const DeviceConfiguration& newConfig) -> void;
     auto setup() -> void;
 private:

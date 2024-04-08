@@ -61,10 +61,10 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
     const auto& msgId = parseMessageId(msg);
     switch (msgId)
     {
-    case MessageId::START_TRANSMITION:
+    case MessageId::START_TRANSMISSION:
         if(validateEmptyMsg(msg))
         {
-            emit startTransmition();
+            emit startTransmission();
         }
         else
         {
@@ -72,10 +72,10 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         }
 
         break;
-    case MessageId::STOP_TRANSMITION:
+    case MessageId::STOP_TRANSMISSION:
         if(validateEmptyMsg(msg))
         {
-            emit stopTransmition();
+            emit stopTransmission();
         }
         else
         {
@@ -131,12 +131,12 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
     if(id == 0)
     {
         qDebug() << __func__ << ": start transmition id";
-        return MessageId::START_TRANSMITION;
+        return MessageId::START_TRANSMISSION;
     }
     if(id == 1)
     {
         qDebug() << __func__ << ": stop transmition id";
-        return MessageId::STOP_TRANSMITION;
+        return MessageId::STOP_TRANSMISSION;
     }
     if(id == 2)
     {

@@ -21,8 +21,8 @@ private:
 
 public:
 signals:
-    void startTransmition();
-    void stopTransmition();
+    void startTransmission();
+    void stopTransmission();
     void setConfiguration(const DeviceConfiguration& configuration);
     void invalidMessageStructure(const std::string& msg = "invalid message structure") const;
     void unknownMessage(const std::string& msg = "unknown message id") const;
