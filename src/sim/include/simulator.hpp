@@ -2,7 +2,6 @@
 
 #include <memory>
 
-class QThread;
 class Device;
 
 class Simulator
@@ -12,6 +11,5 @@ public:
     ~Simulator();
 
 private:
-    std::unique_ptr<QThread> worker_thread_;
-    Device* device_{nullptr};
+    std::unique_ptr<Device> device_;
 };
