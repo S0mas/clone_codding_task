@@ -43,6 +43,7 @@ auto Device::setup() -> void
     QObject::connect(&messageProcessor_, &MessageProcessor::stopTransmission, this, &Device::stopTransmission);
     QObject::connect(&messageProcessor_, &MessageProcessor::setConfiguration, this, &Device::setConfiguration);
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessage, this, &Device::reportError);
+    QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessage, this, &Device::responseFailure);
     openPort();
 }
 
@@ -98,7 +99,7 @@ auto Device::setTimer(const float frequency) const -> void
     messageSenderTimer_->setInterval(sec/frequency);
 }
 
-auto Device::reportError(const std::string& errorMsg) const -> void
+auto Device::reportError(const std::string& msg, const std::string& errorMsg) const -> void
 {
     qDebug() << __func__ << ": " << errorMsg;
 }
@@ -108,9 +109,9 @@ auto Device::responseSuccess(const std::string& msg) const -> void
     response(msg + ",ok");
 }
 
-auto Device::responseFailure(const std::string& msg, const std::string& reason) const -> void
+auto Device::responseFailure(const std::string& msg, const std::string& errorMsg) const -> void
 {
-    response(msg + "," + reason);
+    response(msg + "," + errorMsg);
 }
 
 auto Device::response(const std::string& msg) const -> void

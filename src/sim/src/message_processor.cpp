@@ -68,7 +68,7 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         }
         else
         {
-            emit invalidMessage("start transmission msg should not have any params");
+            emit invalidMessage(msg, "start transmission msg should not have any params");
         }
 
         break;
@@ -79,7 +79,7 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         }
         else
         {
-            emit invalidMessage("stop transmission msg should not have any params");
+            emit invalidMessage(msg, "stop transmission msg should not have any params");
         }
         break;
     case MessageId::SET_CONFIGURATION:
@@ -91,7 +91,7 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         }
         else
         {
-            emit invalidMessage("invalid configuration structure");
+            emit invalidMessage(msg, "invalid configuration structure");
         }
         break;
     }
