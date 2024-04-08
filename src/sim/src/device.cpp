@@ -102,3 +102,18 @@ auto Device::reportError(const std::string& errorMsg) const -> void
 {
     qDebug() << __func__ << ": " << errorMsg;
 }
+
+auto Device::responseSuccess(const std::string& msg) const -> void
+{
+    response(msg + ",ok");
+}
+
+auto Device::responseFailure(const std::string& msg, const std::string& reason) const -> void
+{
+    response(msg + "," + reason);
+}
+
+auto Device::response(const std::string& msg) const -> void
+{
+    write(msg + "\n");
+}

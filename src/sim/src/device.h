@@ -29,6 +29,9 @@ private:
     auto write(const std::string& msg) const -> void;
     auto setTimer(const float frequency) const -> void;
     auto reportError(const std::string& errorMsg) const -> void;
+    auto responseSuccess(const std::string& msg) const -> void;
+    auto responseFailure(const std::string& msg, const std::string& reason) const -> void;
+    auto response(const std::string& msg) const -> void;
 private:
     QSerialPort* port_;
     State state_;
