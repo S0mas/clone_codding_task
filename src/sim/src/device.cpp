@@ -19,11 +19,13 @@ Device::~Device()
 auto Device::startTransmission() const -> void
 {
     qDebug() << __func__;
+    messageSenderTimer_->start();
 }
 
 auto Device::stopTransmission() const -> void
 {
     qDebug() << __func__;
+    messageSenderTimer_->stop();
 }
 
 auto Device::setConfiguration(const DeviceConfiguration& newConfig) -> void
