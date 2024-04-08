@@ -38,4 +38,5 @@ private:
     DeviceConfiguration configuration_;
     MessageProcessor messageProcessor_;
     QTimer* messageSenderTimer_;
+    std::string currentMsg_;
 };
