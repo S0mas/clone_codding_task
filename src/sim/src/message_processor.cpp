@@ -92,16 +92,12 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         }
         else
         {
-            qDebug() << "Invalid configuration";
-            emit invalidMessageStructure();
+            emit invalidMessageStructure("Invalid configuration structure");
         }
         break;
     }
     case MessageId::INVALID:
-        emit invalidMessageStructure();
-        break;
     case MessageId::UKNOWN:
-        emit unknownMessage();
         break;
     }
 }
@@ -119,7 +115,7 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
     std::istringstream inpstream{msg};
     if(inpstream.get() != msgStartSymbol)
     {
-        qDebug() << __func__ << ": msg invalid, no $";
+        emit invalidMessageStructure("msg should start with '$'");
         return MessageId::INVALID;
     }
 
@@ -127,7 +123,7 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
     inpstream >> id;
     if(inpstream.fail())
     {
-        qDebug() << __func__ << ": msg invalid, no id";
+        emit invalidMessageStructure("msg id is invalid");
         return MessageId::INVALID;
     }
 
@@ -147,7 +143,7 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
         qDebug() << __func__ << ": configure id";
         return MessageId::SET_CONFIGURATION;
     }
-    qDebug() << __func__ << ": msg invalid, id: " << id << " unknown";
+    emit invalidMessageStructure("msg id is unknown");
     return MessageId::UKNOWN;
 }
 
