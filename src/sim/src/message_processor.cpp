@@ -64,22 +64,22 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
     case MessageId::START_TRANSMITION:
         if(validateEmptyMsg(msg))
         {
-            emit invalidMessageStructure();
+            emit startTransmition();
         }
         else
         {
-            emit startTransmition();
+            emit invalidMessageStructure();
         }
 
         break;
     case MessageId::STOP_TRANSMITION:
         if(validateEmptyMsg(msg))
         {
-            emit invalidMessageStructure();
+            emit stopTransmition();
         }
         else
         {
-            emit stopTransmition();
+            emit invalidMessageStructure();
         }
         break;
     case MessageId::SET_CONFIGURATION:
