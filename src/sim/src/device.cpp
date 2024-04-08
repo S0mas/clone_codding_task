@@ -43,7 +43,6 @@ auto Device::setup() -> void
     QObject::connect(&messageProcessor_, &MessageProcessor::stopTransmission, this, &Device::stopTransmission);
     QObject::connect(&messageProcessor_, &MessageProcessor::setConfiguration, this, &Device::setConfiguration);
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessageStructure, this, &Device::reportError);
-    QObject::connect(&messageProcessor_, &MessageProcessor::unknownMessage, this, &Device::reportError);
     openPort();
 }
 

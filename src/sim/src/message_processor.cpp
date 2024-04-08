@@ -96,7 +96,6 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         break;
     }
     case MessageId::INVALID:
-    case MessageId::UKNOWN:
         break;
     }
 }
@@ -138,7 +137,7 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
         return MessageId::SET_CONFIGURATION;
     }
     emit invalidMessageStructure("msg id is unknown");
-    return MessageId::UKNOWN;
+    return MessageId::INVALID;
 }
 
 
