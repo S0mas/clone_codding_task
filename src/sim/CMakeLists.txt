@@ -12,17 +12,12 @@ set(CMAKE_AUTOMOC ON)
 #PREPARING HEADER FILES ################################
 file(GLOB_RECURSE EXTERNAL_HEADERS include/*.hpp)
 file(GLOB_RECURSE SOURCES
-    include/*.cpp)
+    include/*.cpp src/*.cpp)
 
 find_package(Qt6 6.4 REQUIRED COMPONENTS Core SerialPort)
 
 #CREATING EXEC AND LINK IT WITH LIBS AND MANUALLY CREATED SOURCES ###############
-add_library(${PROJECT} ${SOURCES} ${EXTERNAL_HEADERS}
-    src/device.h src/device.cpp
-    src/message_processor.h src/message_processor.cpp
-    src/device_configuration.h
-    src/state.h
-    src/message_id.h)
+add_library(${PROJECT} ${SOURCES} ${EXTERNAL_HEADERS})
 target_include_directories(${PROJECT}
     PRIVATE src
     PUBLIC include)
