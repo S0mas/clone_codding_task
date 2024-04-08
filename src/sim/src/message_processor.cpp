@@ -87,7 +87,6 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
         const auto& configuration = parseConfiguration(msg);
         if(configuration.has_value())
         {
-            qDebug() << "Valid configuration";
             emit setConfiguration(configuration.value());
         }
         else
@@ -108,9 +107,6 @@ auto MessageProcessor::validateEmptyMsg(const std::string& msg) const -> bool
 }
 auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
 {
-    qDebug() << __func__ << ": |" << msg.c_str() << "|";
-
-
     const auto msgStartSymbol = '$';
     std::istringstream inpstream{msg};
     if(inpstream.get() != msgStartSymbol)
@@ -127,7 +123,6 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
         return MessageId::INVALID;
     }
 
-    qDebug() << "id: " << id;
     if(id == 0)
     {
         qDebug() << __func__ << ": start transmition id";
@@ -140,7 +135,6 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
     }
     if(id == 2)
     {
-        qDebug() << __func__ << ": configure id";
         return MessageId::SET_CONFIGURATION;
     }
     emit invalidMessageStructure("msg id is unknown");
