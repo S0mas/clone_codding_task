@@ -14,7 +14,7 @@ public:
     auto processMessage(const std::string& msg) -> void;
 private:
     auto validateEmptyMsg(const std::string& msg) const -> bool;
-    auto parseMessageId(const std::string& msg) const -> MessageId;
+    auto parseMessageId(const std::string& msg, std::string& errorReason) const -> MessageId;
 
 
     auto parseConfiguration(const std::string& msg) const -> std::optional<DeviceConfiguration>;

@@ -57,8 +57,8 @@ auto MessageProcessor::processMessage(const std::string& msg) -> void
     {
         return;
     }
-
-    const auto& msgId = parseMessageId(msg);
+    std::string errorReason;
+    const auto& msgId = parseMessageId(msg, errorReason);
     switch (msgId)
     {
     case MessageId::START_TRANSMISSION:
@@ -104,13 +104,13 @@ auto MessageProcessor::validateEmptyMsg(const std::string& msg) const -> bool
 {
     return msg.size() == 2;
 }
-auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
+auto MessageProcessor::parseMessageId(const std::string& msg, std::string& errorReason) const -> MessageId
 {
     const auto msgStartSymbol = '$';
     std::istringstream inpstream{msg};
     if(inpstream.get() != msgStartSymbol)
     {
-        emit invalidMessageStructure("msg should start with '$'");
+        errorReason = "msg should start with '$'";
         return MessageId::INVALID;
     }
 
@@ -118,7 +118,7 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
     inpstream >> id;
     if(inpstream.fail())
     {
-        emit invalidMessageStructure("msg id is invalid");
+        errorReason = "msg id is invalid";
         return MessageId::INVALID;
     }
 
@@ -136,7 +136,7 @@ auto MessageProcessor::parseMessageId(const std::string& msg) const -> MessageId
     {
         return MessageId::SET_CONFIGURATION;
     }
-    emit invalidMessageStructure("msg id is unknown");
+    errorReason = "msg id is unknown";
     return MessageId::INVALID;
 }
 
