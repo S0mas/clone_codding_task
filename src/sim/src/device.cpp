@@ -44,6 +44,12 @@ auto Device::setup() -> void
     openPort();
 }
 
+auto Device::sendState() const -> void
+{
+    qDebug() << __func__;
+    write(stateToString(state_) + "\n");
+}
+
 auto Device::openPort() -> void
 {
     qDebug() << __func__;

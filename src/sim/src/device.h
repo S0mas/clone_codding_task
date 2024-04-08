@@ -21,6 +21,7 @@ public slots:
     auto stopTransmission() const -> void;
     auto setConfiguration(const DeviceConfiguration& newConfig) -> void;
     auto setup() -> void;
+    auto sendState() const -> void;
 private:
     auto openPort() -> void;
     auto closePort() -> void;
