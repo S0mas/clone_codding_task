@@ -29,3 +29,7 @@ auto DeviceController::configure(const int frequency, const bool debug) -> void
 }
 
 
+auto DeviceController::readResponse() const -> std::string
+{
+    return "";
+}

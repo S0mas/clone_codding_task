@@ -13,7 +13,7 @@ public:
     auto start() -> void;
     auto stop() -> void;
     auto configure(int frequency, bool debug) -> void;
-private:
+    auto readResponse() const -> std::string;
 
 private:
     std::unique_ptr<SerialTalker> serialTalker_;

@@ -1,5 +1,6 @@
 #include <simulator.hpp>
 #include <device_controller.hpp>
+#include <server.hpp>
 #include "src/device_if.hpp"
 
 #include <QGuiApplication>
@@ -11,7 +12,8 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     Simulator e;
-    DeviceIF deviceif;
+    DeviceController controller;
+    Server server{controller};
 
     QVariantMap map;
     map.insert("deviceif", QVariant::fromValue(&deviceif));

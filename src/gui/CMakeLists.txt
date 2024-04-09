@@ -29,4 +29,5 @@ target_link_libraries(${PROJECT}
     PRIVATE Qt6::Quick
     clone_sim
     clone_device-controller
+    clone_http-server
 )
