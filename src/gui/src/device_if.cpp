@@ -1,7 +1,8 @@
 #include "device_if.hpp"
 
-DeviceIF::DeviceIF(QObject *parent)
+DeviceIF::DeviceIF(DeviceController& controller, QObject* parent)
     : QObject{parent}
+    , controller_{controller}
 {}
 
 

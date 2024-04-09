@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
 
     Simulator e;
     DeviceController controller;
+    DeviceIF deviceif{controller};
     Server server{controller};
 
     QVariantMap map;
