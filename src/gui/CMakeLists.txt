@@ -22,8 +22,11 @@ qt_add_qml_module(${PROJECT}
     URI mtg
     VERSION 1.0
     QML_FILES Main.qml
+    SOURCES src/device_if.hpp src/device_if.cpp
 )
 
 target_link_libraries(${PROJECT}
     PRIVATE Qt6::Quick
+    clone_sim
+    clone_device-controller
 )

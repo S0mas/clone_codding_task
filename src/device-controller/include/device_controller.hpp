@@ -12,7 +12,7 @@ public:
 
     auto start() -> void;
     auto stop() -> void;
-    auto configure() -> void;
+    auto configure(int frequency, bool debug) -> void;
 private:
 
 private:
