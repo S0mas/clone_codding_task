@@ -88,7 +88,7 @@ auto Device::setTimer(const double frequency) const -> void
 {
     if(frequency == 0)
     {
-        messageSenderTimer_->setInterval(0);
+        messageSenderTimer_->setInterval(std::numeric_limits<int>::max());
     }
     else
     {
