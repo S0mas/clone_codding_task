@@ -3,6 +3,7 @@
 #include <QtHttpServer>
 #include <QJsonDocument>
 
+#include <chrono>
 #include <optional>
 
 struct config
@@ -56,36 +57,36 @@ Server::Server(DeviceController& controller)
 {
 
     server_->route("/start", QHttpServerRequest::Method::Get,
-                   [&controller](const QHttpServerRequest &request) {
+                   [&controller, this](const QHttpServerRequest &request) {
                        controller.start();
-                       return QHttpServerResponse(QString::fromStdString(controller.readResponse()));
+                       return sendResponse();
                    }
                    );
 
     server_->route("/stop", QHttpServerRequest::Method::Get,
-                   [&controller](const QHttpServerRequest &request) {
+                   [&controller, this](const QHttpServerRequest &request) {
                        controller.stop();
-                       return QHttpServerResponse(QString::fromStdString(controller.readResponse()));
+                       return sendResponse();
                    }
                    );
 
     server_->route("/configure",
-                   [&controller](const QHttpServerRequest &request) {
+                   [&controller, this](const QHttpServerRequest &request) {
                        return addConfig(request, controller);
                    }
                    );
 
     server_->route("/messages/<arg>", QHttpServerRequest::Method::Get,
-                   [&controller](int numberOfMessagesToReturn, const QHttpServerRequest &request) {
+                   [&controller, this](int numberOfMessagesToReturn, const QHttpServerRequest &request) {
                        controller.start();
-                       return QHttpServerResponse(QString::fromStdString(controller.readResponse()));
+                       return sendResponse();
                    }
                    );
 
     server_->route("/device", QHttpServerRequest::Method::Put,
-                   [&controller](const QHttpServerRequest &request) {
+                   [&controller, this](const QHttpServerRequest &request) {
                        controller.start();
-                       return QHttpServerResponse(QString::fromStdString(controller.readResponse()));
+                       return sendResponse();
                    }
                    );
 
@@ -101,3 +102,34 @@ Server::Server(DeviceController& controller)
 }
 
 Server::~Server() = default;
+
+auto Server::setNewResponse(const std::string& msg) -> void
+{
+    response_ = msg;
+}
+
+auto Server::takeResponse() -> std::string
+{
+    auto msg = response_.value();
+    response_.reset();
+    return msg;
+}
+
+auto Server::waitForResponse(int ms) -> void
+{
+    auto current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    const auto end_time_in_ms = current_time_in_ms + ms;
+    while(!response_.has_value() && current_time_in_ms <= end_time_in_ms)
+    {
+        QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+        current_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    }
+}
+
+auto Server::sendResponse() -> QHttpServerResponse
+{
+    waitForResponse();
+    return response_.has_value() ?
+               QHttpServerResponse(QString::fromStdString(takeResponse())) :
+               QHttpServerResponse(QHttpServerResponse::StatusCode::RequestTimeout);
+}
