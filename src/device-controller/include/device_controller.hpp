@@ -1,5 +1,7 @@
 #pragma once
 
+#include <configuration.hpp>
+
 #include <memory>
 #include <functional>
 
@@ -16,7 +18,7 @@ public:
 
     auto start() -> void;
     auto stop() -> void;
-    auto configure(int frequency, bool debug) -> void;
+    auto configure(const Configuration& config) -> void;
     auto setReadCallback(const ReadCallback& callback) const -> void;
 private:
     std::unique_ptr<SerialTalker> serialTalker_;

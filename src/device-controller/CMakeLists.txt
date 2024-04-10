@@ -24,6 +24,7 @@ target_include_directories(${PROJECT}
 target_link_libraries(${PROJECT}
     PRIVATE
     clone_serial-talker
+    clone_common
 )
 
 add_compile_options("/std:c++latest")

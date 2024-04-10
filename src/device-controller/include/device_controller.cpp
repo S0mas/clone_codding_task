@@ -20,9 +20,9 @@ auto DeviceController::stop() -> void
     serialTalker_->write("$1");
 }
 
-auto DeviceController::configure(const int frequency, const bool debug) -> void
+auto DeviceController::configure(const Configuration& config) -> void
 {
-    serialTalker_->write(QString("$2,%1,%2").arg(frequency).arg(debug).toStdString());
+    serialTalker_->write(QString("$2,%1,%2").arg(config.frequency_).arg(config.debug_).toStdString());
 }
 
 auto DeviceController::setReadCallback(const ReadCallback& callback) const -> void

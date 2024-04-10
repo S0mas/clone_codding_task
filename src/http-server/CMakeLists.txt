@@ -25,6 +25,8 @@ target_link_libraries(${PROJECT}
     PUBLIC
     Qt6::Core Qt6::HttpServer
     clone_device-controller
+    clone_common
+    clone_parser
 )
 
 add_compile_options("/std:c++latest")

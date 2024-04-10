@@ -1,16 +1,13 @@
 #include "server.hpp"
 
+#include <configuration.hpp>
+#include <parser.hpp>
+
 #include <QtHttpServer>
 #include <QJsonDocument>
 
 #include <chrono>
 #include <optional>
-
-struct config
-{
-    int frequency = 0;
-    bool debug = false;
-};
 
 static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr)
 {
@@ -21,11 +18,25 @@ static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr)
     return json.object();
 }
 
-std::optional<config> configFromJson(const QJsonObject &json)
+std::optional<Configuration> configFromJson(const QJsonObject &json)
 {
     if(json.contains("frequency") && json.contains("debug"))
     {
-        return config{json.value("frequency").toInt(), json.value("debug").toBool()};
+        std::string debug_token;
+        if(json.value("debug").isBool())
+        {
+            debug_token = std::to_string(json.value("debug").toBool());
+        }
+        else if(json.value("debug").isString())
+        {
+            debug_token = json.value("debug").toString().toStdString();
+        }
+        else if(auto value = json.value("debug").toInt(-1); value == 1 || value == 0)
+        {
+            debug_token = std::to_string(value);
+        }
+
+        return Parser::parseConfigFromTokens(std::to_string(json.value("frequency").toInt()), debug_token);
     }
     else
     {
@@ -47,7 +58,7 @@ QHttpServerResponse addConfig(const QHttpServerRequest& request, DeviceControlle
         return QHttpServerResponse(QHttpServerResponder::StatusCode::BadRequest);
     }
 
-    controller.configure(config.value().frequency, config.value().debug);
+    controller.configure(config.value());
     return QHttpServerResponse(QHttpServerResponder::StatusCode::Ok);
 }
 
