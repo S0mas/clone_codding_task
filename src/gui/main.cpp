@@ -13,9 +13,6 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     Database database;
-    database.replaceConfig(99, false);
-    database.storeMeasurementMsg(1, 2, 3);
-    database.storeResponseMsg("testmsg");
     Simulator e;
     DeviceController controller;
     DeviceIF deviceif{controller};
@@ -50,8 +47,6 @@ int main(int argc, char *argv[])
     controller.setReadCallback(callback);
 
     Server server{controller};
-
-
     QVariantMap map;
     map.insert("deviceif", QVariant::fromValue(&deviceif));
 
