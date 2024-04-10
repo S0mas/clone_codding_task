@@ -19,6 +19,36 @@ int main(int argc, char *argv[])
     Simulator e;
     DeviceController controller;
     DeviceIF deviceif{controller};
+
+    auto callback = [&database, &deviceif](const std::string& msg)
+    {
+        if(Parser::isResponse(msg))
+        {
+            database.storeResponseMsg(msg);
+            deviceif.setLastResponse(QString::fromStdString(msg));
+
+            if(Parser::isResponseValidConfig(msg))
+            {
+                const auto& config = Parser::parseResponseConfig(msg);
+                if(config.has_value())
+                {
+                    database.replaceConfig(config.value());
+                    deviceif.setConfig(config.value());
+                }
+            }
+        }
+        else
+        {
+            const auto& meas = Parser::parseMeasurement(msg);
+            if(meas.has_value())
+            {
+                database.storeMeasurementMsg(meas.value());
+                deviceif.setMeasurement(meas.value());
+            }
+        }
+    };
+    controller.setReadCallback(callback);
+
     Server server{controller};
 
 
