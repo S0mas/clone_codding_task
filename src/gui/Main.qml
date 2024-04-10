@@ -10,7 +10,7 @@ ApplicationWindow
     required property QtObject deviceif
 
     width: 640
-    height: 480
+    height: 640
     visible: true
     title: qsTr("Device Controller")
 
@@ -21,47 +21,160 @@ ApplicationWindow
     {
         anchors.centerIn: parent
 
-        Button
+        RowLayout
         {
-            text: qsTr("Start")
-            onClicked: root.deviceif.start()
-        }
+            id: stateRow
 
-        Button
-        {
-            text: qsTr("Stop")
-            onClicked: root.deviceif.stop()
-        }
-
-        TextField
-        {
-            id: frequencyInput
-
-            implicitWidth: 220
-            implicitHeight: 38
-
-            Material.accent: frequencyInput.acceptableInput ? Material.Green : Material.Red
-            placeholderText: qsTr("Frequency(0-255)")
-            validator: IntValidator
+            Frame
             {
-                bottom: 1
-                top: 255
+                implicitWidth: controllerFrame.implicitWidth/2 - stateRow.spacing/2
+
+                ColumnLayout
+                {
+                    anchors.fill: parent
+
+                    Text
+                    {
+                        Layout.bottomMargin: 8
+
+                        text: qsTr("Last measurement")
+                        color: "white"
+                    }
+
+                    TextField
+                    {
+                        Layout.fillWidth: true
+
+                        placeholderText: qsTr("pressure")
+                        readOnly: true
+                        text: root.deviceif.pressure
+                    }
+
+                    TextField
+                    {
+                        Layout.fillWidth: true
+
+                        placeholderText: qsTr("temperature")
+                        readOnly: true
+                        text: root.deviceif.temperature
+                    }
+
+                    TextField
+                    {
+                        Layout.fillWidth: true
+
+                        placeholderText: qsTr("velocity")
+                        readOnly: true
+                        text: root.deviceif.velocity
+                    }
+                }
+            }
+
+            Frame
+            {
+                implicitWidth: controllerFrame.implicitWidth/2 - stateRow.spacing/2
+
+                ColumnLayout
+                {
+                    anchors.fill: parent
+
+                    Text
+                    {
+                        Layout.bottomMargin: 8
+
+                        text: qsTr("Current configuration")
+                        color: "white"
+                    }
+
+                    TextField
+                    {
+                        Layout.fillWidth: true
+
+                        placeholderText: qsTr("frequency")
+                        readOnly: true
+                        text: root.deviceif.frequency
+                    }
+
+                    TextField
+                    {
+                        Layout.fillWidth: true
+
+                        placeholderText: qsTr("debug")
+                        readOnly: true
+                        text: root.deviceif.debug
+                    }
+
+                    TextField
+                    {
+                        Layout.fillWidth: true
+
+                        placeholderText: qsTr("Last response")
+                        readOnly: true
+                        text: root.deviceif.lastResponse
+                    }
+                }
             }
         }
 
-        CheckBox
+        Frame
         {
-            id: debugCheckbox
+            id: controllerFrame
 
-            text: qsTr("Debug")
-            checked: false
-        }
+            RowLayout
+            {
+                ColumnLayout
+                {
+                    Button
+                    {
+                        text: qsTr("Start")
+                        onClicked: root.deviceif.start()
+                    }
 
-        Button
-        {
-            text: qsTr("Configure")
-            onClicked: root.deviceif.configure(frequencyInput.text, debugCheckbox.checked)
-            enabled: frequencyInput.acceptableInput
+                    Button
+                    {
+                        text: qsTr("Stop")
+                        onClicked: root.deviceif.stop()
+                    }
+                }
+
+                ColumnLayout
+                {
+                    RowLayout
+                    {
+                        TextField
+                        {
+                            id: frequencyInput
+
+                            implicitWidth: 220
+                            implicitHeight: 38
+
+                            Material.accent: frequencyInput.acceptableInput ? Material.Green : Material.Red
+                            placeholderText: qsTr("Frequency(0-255)")
+                            validator: IntValidator
+                            {
+                                bottom: 1
+                                top: 255
+                            }
+                        }
+
+                        CheckBox
+                        {
+                            id: debugCheckbox
+
+                            text: qsTr("Debug")
+                            checked: false
+                        }
+                    }
+
+                    Button
+                    {
+                        Layout.alignment: Qt.AlignRight
+                        text: qsTr("Configure")
+                        onClicked: root.deviceif.configure(frequencyInput.text, debugCheckbox.checked)
+                        enabled: frequencyInput.acceptableInput
+                    }
+                }
+            }
         }
     }
 }
