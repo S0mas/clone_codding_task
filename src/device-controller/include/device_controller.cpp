@@ -3,12 +3,9 @@
 
 #include <QString>
 
-#include <iostream>
-
 DeviceController::DeviceController()
     : serialTalker_{std::make_unique<SerialTalker>("/home/s0mas/test2")}
 {
-    serialTalker_->setOnReadCallback([this](auto const& msg){ std::cout << "DeviceTalker received msg: " << msg << std::endl; });
 }
 
 DeviceController::~DeviceController() = default;
@@ -28,8 +25,7 @@ auto DeviceController::configure(const int frequency, const bool debug) -> void
     serialTalker_->write(QString("$2,%1,%2").arg(frequency).arg(debug).toStdString());
 }
 
-
-auto DeviceController::readResponse() const -> std::string
+auto DeviceController::setReadCallback(const ReadCallback& callback) const -> void
 {
-    return "";
+    serialTalker_->setOnReadCallback(callback);
 }
