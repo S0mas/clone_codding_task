@@ -16,11 +16,13 @@ int main(int argc, char *argv[])
     Simulator e;
     DeviceController controller;
     DeviceIF deviceif{controller};
+    Server server{controller};
 
-    auto callback = [&database, &deviceif](const std::string& msg)
+    auto callback = [&database, &deviceif, &server](const std::string& msg)
     {
         if(Parser::isResponse(msg))
         {
+            server.setNewResponse(msg);
             database.storeResponseMsg(msg);
             deviceif.setLastResponse(QString::fromStdString(msg));
 
@@ -46,7 +48,6 @@ int main(int argc, char *argv[])
     };
     controller.setReadCallback(callback);
 
-    Server server{controller};
     QVariantMap map;
     map.insert("deviceif", QVariant::fromValue(&deviceif));
 
