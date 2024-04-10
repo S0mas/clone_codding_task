@@ -17,7 +17,7 @@ public:
     SerialTalker(std::string name);
     ~SerialTalker();
 
-    auto setOnReadCallback(ReadCallback&& callback) -> void;
+    auto setOnReadCallback(const ReadCallback& callback) -> void;
     auto write(const std::string& msg) -> void;
 
 private:

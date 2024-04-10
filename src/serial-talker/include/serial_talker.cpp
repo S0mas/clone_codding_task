@@ -15,9 +15,9 @@ SerialTalker::~SerialTalker()
     closePort();
 }
 
-auto SerialTalker::setOnReadCallback(ReadCallback&& callback) -> void
+auto SerialTalker::setOnReadCallback(const ReadCallback& callback) -> void
 {
-    readCallback_ = std::move(callback);
+    readCallback_ = callback;
 }
 
 auto SerialTalker::read() -> std::string
