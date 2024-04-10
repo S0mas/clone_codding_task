@@ -99,7 +99,7 @@ auto Device::setTimer(const double frequency) const -> void
 
 auto Device::reportError(const std::string& msg, const std::string& errorMsg) const -> void
 {
-    qDebug() << __func__ << ": " << errorMsg;
+    qDebug() << __func__ << ": " << errorMsg.c_str();
 }
 
 auto Device::responseSuccess(const std::string& msg) const -> void
@@ -114,6 +114,6 @@ auto Device::responseFailure(const std::string& msg, const std::string& errorMsg
 
 auto Device::response(const std::string& msg) const -> void
 {
-    qDebug() << "Device::response " << msg;
+    qDebug() << "Device::response " << msg.c_str();
     serialTalker_->write(msg);
 }
