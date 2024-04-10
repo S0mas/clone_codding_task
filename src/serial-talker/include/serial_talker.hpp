@@ -12,7 +12,7 @@ class SerialTalker : public QObject
 {
     Q_OBJECT
 
-    using ReadCallback = std::function<void(std::string&&)>;
+    using ReadCallback = std::function<void(const std::string&)>;
 public:
     SerialTalker(QString name);
     ~SerialTalker();

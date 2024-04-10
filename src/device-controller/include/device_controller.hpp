@@ -10,7 +10,7 @@ class SerialTalker;
 class DeviceController
 {
 public:
-    using ReadCallback = std::function<void(std::string&&)>;
+    using ReadCallback = std::function<void(const std::string&)>;
 
 public:
     DeviceController();
