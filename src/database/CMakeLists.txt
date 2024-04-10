@@ -24,6 +24,7 @@ target_include_directories(${PROJECT}
 target_link_libraries(${PROJECT}
     PRIVATE
     Qt6::Core Qt6::Sql
+    clone_common
 )
 
 add_compile_options("/std:c++latest")

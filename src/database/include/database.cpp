@@ -13,10 +13,10 @@ Database::Database()
 
 Database::~Database() = default;
 
-auto Database::storeMeasurementMsg(const float pressure, const float temperature, const float velocity) const -> void
+auto Database::storeMeasurementMsg(const Measurement& meas) const -> void
 {
     QSqlQuery query;
-    query.prepare(QString("INSERT INTO measurements (pressure, temperature, velocity) VALUES(%1, %2, %3)").arg(pressure).arg(temperature).arg(velocity));
+    query.prepare(QString("INSERT INTO measurements (pressure, temperature, velocity) VALUES(%1, %2, %3)").arg(meas.pressure_).arg(meas.temperature_).arg(meas.velocity_));
     query.exec();
 }
 
@@ -27,10 +27,10 @@ auto Database::storeResponseMsg(const std::string& msg) const -> void
     query.exec();
 }
 
-auto Database::replaceConfig(const int frequency, const bool debug) const -> void
+auto Database::replaceConfig(const Configuration& config) const -> void
 {
     QSqlQuery query;
-    query.prepare(QString("REPLACE INTO config (id, frequency, debug) VALUES(0, %1, %2)").arg(frequency).arg(debug));
+    query.prepare(QString("REPLACE INTO config (id, frequency, debug) VALUES(0, %1, %2)").arg(config.frequency_).arg(config.debug_));
     query.exec();
 }
 
