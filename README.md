@@ -8,7 +8,7 @@ DATABASE_FILE
     
 SIMULATION
 - default: "0"
-- desc: Turns on the simulation mode when != 0.
+- desc: Will run app in simulation mode when != 0.
 
 SERIAL_PORT
 - default: "/dev/ttyUSB0"
@@ -33,3 +33,7 @@ SERVER_ADDRESS
 SERIAL_BAUDRATE
 - default: "115000"
 - desc: Baudrate of serial ports
+
+NO_GUI
+- default: "0"
+- desc: Will run app without gui when != 0

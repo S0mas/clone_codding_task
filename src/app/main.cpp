@@ -1,16 +1,47 @@
+#include "device_if.hpp"
+
 #include <simulator.hpp>
 #include <database.hpp>
 #include <device_controller.hpp>
 #include <server.hpp>
-#include "src/device_if.hpp"
 
 #include <QGuiApplication>
+#include <QCoreApplication>
+#include <QProcessEnvironment>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+namespace
+{
+
+struct AppConfig
+{
+    AppConfig()
+    {
+        no_gui = QProcessEnvironment::systemEnvironment().value("NO_GUI", "0");
+    }
+
+    bool runGui() const
+    {
+        return no_gui == "0";
+    }
+
+    QString no_gui;
+};
+
+}
+
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
+    std::unique_ptr<QCoreApplication> app;
+    if(AppConfig().runGui())
+    {
+        app = std::make_unique<QGuiApplication>(argc, argv);
+    }
+    else
+    {
+        app = std::make_unique<QCoreApplication>(argc, argv);
+    }
 
     Database database;
     Simulator e;
@@ -48,17 +79,22 @@ int main(int argc, char *argv[])
     };
     controller.setReadCallback(callback);
 
-    QVariantMap map;
-    map.insert("deviceif", QVariant::fromValue(&deviceif));
+    std::unique_ptr<QQmlApplicationEngine> engine;
+    if(AppConfig().runGui())
+    {
+        QVariantMap map;
+        map.insert("deviceif", QVariant::fromValue(&deviceif));
 
-    QQmlApplicationEngine engine;
-    engine.setInitialProperties(map);
+        engine = std::make_unique<QQmlApplicationEngine>() ;
+        engine->setInitialProperties(map);
 
-    const QUrl url(u"qrc:/mtg/Main.qml"_qs);
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreationFailed,
-        &app, []() { QCoreApplication::exit(-1); },
-        Qt::QueuedConnection);
+        const QUrl url(u"qrc:/clone/Main.qml"_qs);
+        QObject::connect(engine.get(), &QQmlApplicationEngine::objectCreationFailed,
+            app.get(), []() { QCoreApplication::exit(-1); },
+            Qt::QueuedConnection);
 
-    engine.load(url);
-    return app.exec();
+        engine->load(url);
+    }
+
+    return app->exec();
 }

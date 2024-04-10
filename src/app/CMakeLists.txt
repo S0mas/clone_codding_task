@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-set(PROJECT clone_gui)
+set(PROJECT clone_app)
 project(${PROJECT} LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
@@ -19,11 +19,14 @@ qt_add_executable(${PROJECT}
 )
 
 qt_add_qml_module(${PROJECT}
-    URI mtg
+    URI clone
     VERSION 1.0
     QML_FILES Main.qml
     SOURCES src/device_if.hpp src/device_if.cpp
 )
+
+target_include_directories(${PROJECT}
+    PRIVATE src)
 
 target_link_libraries(${PROJECT}
     PRIVATE Qt6::Quick
