@@ -1,11 +1,13 @@
 #include "device.h"
 
-#include "serial_talker.hpp"
+#include <measurement.hpp>
+#include <parser.hpp>
+#include <serial_talker.hpp>
 
 #include <QDebug>
 #include <QTimer>
 
-Q_DECLARE_METATYPE(DeviceConfiguration)
+Q_DECLARE_METATYPE(Configuration)
 
 Device::Device(QObject* parent)
     : QObject(parent)
@@ -30,7 +32,7 @@ auto Device::stopTransmission() const -> void
     responseSuccess(currentMsg_);
 }
 
-auto Device::setConfiguration(const DeviceConfiguration& newConfig) -> void
+auto Device::setConfiguration(const Configuration& newConfig) -> void
 {
     configuration_ = newConfig;
     setTimer(configuration_.frequency_);
@@ -48,7 +50,7 @@ auto Device::setup() -> void
 
     serialTalker_ = std::make_unique<SerialTalker>("/home/s0mas/test");
     messageSenderTimer_ = new QTimer(this);
-    QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendState);
+    QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendMeasurement);
     serialTalker_->setOnReadCallback([this](auto const& msg)
                                      {
                                          qDebug() << "DeviceSim received msg: " << QString::fromStdString(msg);
@@ -57,15 +59,26 @@ auto Device::setup() -> void
                                      });
 }
 
-auto Device::sendState() const -> void
+auto Device::sendMeasurement() const -> void
 {
-    serialTalker_->write(stateToString(state_));
+    Measurement meas;
+    meas.pressure_ = 111.22;
+    meas.temperature_ = 1341.9;
+    meas.velocity_ = 888.123;
+    serialTalker_->write(Parser::toMsg(meas));
 }
 
-auto Device::setTimer(const float frequency) const -> void
+auto Device::setTimer(const double frequency) const -> void
 {
-    const float sec = 1000.0; //ms
-    messageSenderTimer_->setInterval(sec/frequency);
+    if(frequency == 0)
+    {
+        messageSenderTimer_->setInterval(0);
+    }
+    else
+    {
+        const auto sec = 1000.0; //ms
+        messageSenderTimer_->setInterval(sec/frequency);
+    }
 }
 
 auto Device::reportError(const std::string& msg, const std::string& errorMsg) const -> void

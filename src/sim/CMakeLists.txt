@@ -24,8 +24,9 @@ target_include_directories(${PROJECT}
 target_link_libraries(${PROJECT}
     PRIVATE
     Qt6::Core Qt6::SerialPort
-    half
     clone_serial-talker
+    clone_common
+    clone_parser
 )
 
 add_compile_options("/std:c++latest")

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "message_processor.h"
-#include "device_configuration.h"
-#include "state.h"
 
 #include <QObject>
 
@@ -19,18 +17,17 @@ public:
 public slots:
     auto startTransmission() const -> void;
     auto stopTransmission() const -> void;
-    auto setConfiguration(const DeviceConfiguration& newConfig) -> void;
+    auto setConfiguration(const Configuration& newConfig) -> void;
     auto setup() -> void;
-    auto sendState() const -> void;
+    auto sendMeasurement() const -> void;
 private:
-    auto setTimer(const float frequency) const -> void;
+    auto setTimer(const double frequency) const -> void;
     auto reportError(const std::string& msg, const std::string& errorMsg) const -> void;
     auto responseSuccess(const std::string& msg) const -> void;
     auto responseFailure(const std::string& msg, const std::string& errorMsg) const -> void;
     auto response(const std::string& msg) const -> void;
 private:
-    State state_;
-    DeviceConfiguration configuration_;
+    Configuration configuration_;
     MessageProcessor messageProcessor_;
     QTimer* messageSenderTimer_;
     std::string currentMsg_;
