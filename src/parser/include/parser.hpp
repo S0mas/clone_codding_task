@@ -13,6 +13,7 @@ public:
     static auto parseMeasurement(const std::string& msg) -> std::optional<Measurement>;
     static auto parseResponseConfig(const std::string& msg) -> std::optional<Configuration>;
     static auto parseRequestConfig(const std::string& msg) -> std::optional<Configuration>;
+    static auto parseConfigFromTokens(const std::string& frequencyToken, const std::string& debugToken) -> std::optional<Configuration>;
     static auto parseMessageId(const std::string& msg, std::string& errorReason) -> std::optional<MessageId>;
     static auto toMsg(const Measurement& meas) -> std::string;
 

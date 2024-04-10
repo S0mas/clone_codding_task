@@ -72,66 +72,64 @@ auto Parser::parseMeasurement(const std::string& msg) -> std::optional<Measureme
     return m;
 }
 
-auto Parser::parseResponseConfig(const std::string& msg) -> std::optional<Configuration>
+auto Parser::parseConfigFromTokens(const std::string& frequencyToken, const std::string& debugToken) -> std::optional<Configuration>
 {
-    std::string token;
-    std::istringstream iss{msg};
-
-    std::getline(iss, token, ','); // ignore first token
-
     Configuration c;
-    std::getline(iss, token, ',');
-    c.frequency_ = std::stoi(token);
-
-    std::getline(iss, token, ',');
-    const auto optbool = toBool(token);
-
-    if(iss.fail() || !optbool.has_value())
+    if(const auto& value = toUint8(frequencyToken); value.has_value())
     {
+        c.frequency_ = value.value();
+    }
+    else
+    {
+        // invalid value
         return std::nullopt;
     }
 
-    c.debug_ = optbool.value();
+    if(const auto& value = toBool(debugToken); value.has_value())
+    {
+        c.debug_ = value.value();
+    }
+    else
+    {
+        // invalid value
+        return std::nullopt;
+    }
     return c;
+}
+
+auto Parser::parseResponseConfig(const std::string& msg) -> std::optional<Configuration>
+{
+    std::istringstream iss{msg};
+    std::string token;
+    std::getline(iss, token, ','); // skipFirstToken with message id '$X,'
+
+
+    std::string frequency;
+    std::string debug;
+    std::getline(iss, frequency, ',');
+    std::getline(iss, debug, ',');
+
+    return parseConfigFromTokens(frequency, debug);
 }
 
 auto Parser::parseRequestConfig(const std::string& msg) -> std::optional<Configuration>
 {
     std::istringstream iss{msg};
     std::string token;
-
     std::getline(iss, token, ','); // skipFirstToken with message id '$X,'
 
-    Configuration conf;
-    std::getline(iss, token, ',');
 
-    if(const auto& value = toUint8(token); value.has_value())
-    {
-        conf.frequency_ = value.value();
-    }
-    else
-    {
-        // invalid value
-        return std::nullopt;
-    }
-
-    std::getline(iss, token, ',');
-    if(const auto& value = toBool(token); value.has_value())
-    {
-        conf.debug_ = value.value();
-    }
-    else
-    {
-        // invalid value
-        return std::nullopt;
-    }
-
+    std::string frequency;
+    std::string debug;
+    std::getline(iss, frequency, ',');
+    std::getline(iss, debug, ',');
     if(!iss.eof())
     {
         // too many values
         return std::nullopt;
     }
-    return conf;
+
+    return parseConfigFromTokens(frequency, debug);
 }
 
 auto Parser::parseMessageId(const std::string& msg, std::string& errorReason) -> std::optional<MessageId>
