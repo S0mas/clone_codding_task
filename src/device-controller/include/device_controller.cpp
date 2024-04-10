@@ -1,10 +1,34 @@
 #include "device_controller.hpp"
 #include "serial_talker.hpp"
 
+#include <QProcessEnvironment>
 #include <QString>
 
+namespace
+{
+
+struct DeviceControllerSerialConfig
+{
+    DeviceControllerSerialConfig()
+    {
+        const int isSim = QProcessEnvironment::systemEnvironment().value("SIMULATION", "0").toInt();
+        if(isSim == 0)
+        {
+            port = QProcessEnvironment::systemEnvironment().value("SERIAL_PORT", "/dev/ttyUSB0");
+        }
+        else
+        {
+            port = QProcessEnvironment::systemEnvironment().value("SIM_SERIAL_PORT_2", "/home/s0mas/sim2");
+        }
+    }
+
+    QString port;
+};
+
+}
+
 DeviceController::DeviceController()
-    : serialTalker_{std::make_unique<SerialTalker>("/home/s0mas/test2")}
+    : serialTalker_{std::make_unique<SerialTalker>(DeviceControllerSerialConfig().port)}
 {
 }
 

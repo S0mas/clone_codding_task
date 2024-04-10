@@ -14,7 +14,7 @@ class SerialTalker : public QObject
 
     using ReadCallback = std::function<void(std::string&&)>;
 public:
-    SerialTalker(std::string name);
+    SerialTalker(QString name);
     ~SerialTalker();
 
     auto setOnReadCallback(const ReadCallback& callback) -> void;
@@ -28,5 +28,5 @@ private:
 private:
     ReadCallback readCallback_;
     QTextStream stream_;
-    std::string portName_;
+    QString portName_;
 };

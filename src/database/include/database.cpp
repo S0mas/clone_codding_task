@@ -1,9 +1,24 @@
 #include "database.hpp"
 
-#include <QDebug>
+#include <QProcessEnvironment>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+
+namespace
+{
+
+struct DatabaseConfig
+{
+    DatabaseConfig()
+    {
+        databaseFileName = QProcessEnvironment::systemEnvironment().value("DATABASE_FILE_NAME", "database.db");
+    }
+
+    QString databaseFileName;
+};
+
+}
 
 Database::Database()
 {
@@ -37,8 +52,7 @@ auto Database::replaceConfig(const Configuration& config) const -> void
 auto Database::openConnection() -> void
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("/home/s0mas/clonebase.db");
-    db.setHostName("s0mas");
+    db.setDatabaseName(DatabaseConfig().databaseFileName);
     if(!db.open())
     {
         qDebug() << "dabase failure reason: " << db.lastError();

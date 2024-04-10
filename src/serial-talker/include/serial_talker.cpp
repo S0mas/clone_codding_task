@@ -2,8 +2,30 @@
 
 #include <QDebug>
 #include <QSerialPort>
+#include <QProcessEnvironment>
 
-SerialTalker::SerialTalker(std::string name)
+namespace
+{
+
+struct SerialConfig
+{
+    SerialConfig()
+    {
+        bool okBaudRate;
+        baudrate = QProcessEnvironment::systemEnvironment().value("SERIAL_BAUDRATE", "115000").toInt(&okBaudRate);
+        if(!okBaudRate)
+        {
+            // invalid baudrate
+            baudrate = 115000;
+        }
+    }
+
+    int baudrate;
+};
+
+}
+
+SerialTalker::SerialTalker(QString name)
     : portName_{std::move(name)}
     , readCallback_{[](auto const& msg){ qDebug() << msg; }}
 {
@@ -36,6 +58,7 @@ auto SerialTalker::write(const std::string& msg) -> void
 auto SerialTalker::openPort() -> void
 {
     auto port = new QSerialPort(this);
+    port->setBaudRate(SerialConfig().baudrate);
     stream_.setDevice(port);
 
     QObject::connect(port, &QIODevice::readyRead, port,
@@ -46,7 +69,7 @@ auto SerialTalker::openPort() -> void
                             readCallback_(read());
                         }
                      });
-    port->setPortName(QString::fromStdString(portName_));
+    port->setPortName(portName_);
     const auto result = port->open(QIODeviceBase::ReadWrite | QIODeviceBase::ExistingOnly);
     if(!result)
     {
@@ -62,7 +85,7 @@ auto SerialTalker::closePort() -> void
 {
     if(auto dev = stream_.device(); dev)
     {
-        qDebug() << __func__ << ": " << QString::fromStdString(portName_);
+        qDebug() << __func__ << ": " << portName_;
         dev->close();
         stream_.setDevice(nullptr);
         dev->deleteLater();

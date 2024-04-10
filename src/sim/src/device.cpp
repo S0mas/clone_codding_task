@@ -5,9 +5,25 @@
 #include <serial_talker.hpp>
 
 #include <QDebug>
+#include <QProcessEnvironment>
 #include <QTimer>
 
 Q_DECLARE_METATYPE(Configuration)
+
+namespace
+{
+
+struct DeviceSerialConfig
+{
+    DeviceSerialConfig()
+    {
+        port = QProcessEnvironment::systemEnvironment().value("SIM_SERIAL_PORT_1", "/home/s0mas/sim1");
+    }
+
+    QString port;
+};
+
+}
 
 Device::Device(QObject* parent)
     : QObject(parent)
@@ -48,7 +64,7 @@ auto Device::setup() -> void
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessage, this, &Device::reportError);
     QObject::connect(&messageProcessor_, &MessageProcessor::invalidMessage, this, &Device::responseFailure);
 
-    serialTalker_ = std::make_unique<SerialTalker>("/home/s0mas/test");
+    serialTalker_ = std::make_unique<SerialTalker>(DeviceSerialConfig().port);
     messageSenderTimer_ = new QTimer(this);
     QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendMeasurement);
     serialTalker_->setOnReadCallback([this](auto const& msg)

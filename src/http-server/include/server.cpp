@@ -5,16 +5,48 @@
 
 #include <QtHttpServer>
 #include <QJsonDocument>
+#include <QProcessEnvironment>
 
 #include <chrono>
 #include <optional>
+
+namespace
+{
+
+struct ServerConfig
+{
+    ServerConfig()
+    {
+        bool okPort;
+        port = QProcessEnvironment::systemEnvironment().value("SERVER_PORT", "7100").toInt(&okPort);
+        if(!okPort)
+        {
+            // invalid port
+            port = 7100;
+        }
+
+        address = QHostAddress(QProcessEnvironment::systemEnvironment().value("SERVER_ADDRESS", ""));
+        if(address.isNull())
+        {
+            // invalid address
+            address = QHostAddress::LocalHost;
+        }
+    }
+
+    int port;
+    QHostAddress address;
+};
+
+}
 
 static std::optional<QJsonObject> byteArrayToJsonObject(const QByteArray &arr)
 {
     QJsonParseError err;
     const auto json = QJsonDocument::fromJson(arr, &err);
-    if (err.error || !json.isObject())
+    if(err.error || !json.isObject())
+    {
         return std::nullopt;
+    }
     return json.object();
 }
 
@@ -101,15 +133,14 @@ Server::Server(DeviceController& controller)
                    }
                    );
 
-    const auto port = server_->listen(QHostAddress::Any);
-
-    if (!port)
+    if(auto port = server_->listen(ServerConfig().address, ServerConfig().port); port != 0)
     {
-        // error
-        //return 0;
+        qDebug() << QCoreApplication::translate("HttpServer", "Running on http://%1:%2/").arg(ServerConfig().address.toString()).arg(port);
     }
-
-    qDebug() << QCoreApplication::translate("HttpServer", "Running on http://127.0.0.1:%1/").arg(port);
+    else
+    {
+        qDebug() << "Server error!";
+    }
 }
 
 Server::~Server() = default;
