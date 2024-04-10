@@ -30,4 +30,5 @@ target_link_libraries(${PROJECT}
     clone_sim
     clone_device-controller
     clone_http-server
+    clone_database
 )
