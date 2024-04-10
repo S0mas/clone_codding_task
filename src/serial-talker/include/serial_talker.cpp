@@ -27,7 +27,7 @@ struct SerialConfig
 
 SerialTalker::SerialTalker(QString name)
     : portName_{std::move(name)}
-    , readCallback_{[](auto const& msg){ qDebug() << msg; }}
+    , readCallback_{[](auto const& msg){ qDebug() << "no read callback set"; }}
 {
     openPort();
 }
