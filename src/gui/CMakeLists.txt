@@ -31,4 +31,6 @@ target_link_libraries(${PROJECT}
     clone_device-controller
     clone_http-server
     clone_database
+    clone_common
+    clone_parser
 )
