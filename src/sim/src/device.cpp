@@ -8,10 +8,28 @@
 #include <QProcessEnvironment>
 #include <QTimer>
 
+#include <random>
+
 Q_DECLARE_METATYPE(Configuration)
 
 namespace
 {
+
+float getRandomFloat()
+{
+    static std::default_random_engine e;
+    static std::uniform_real_distribution<> dis(0, 0xFFFF); // range [0, 1)
+    return dis(e);
+}
+
+Measurement getRandomMeasurement()
+{
+    Measurement meas;
+    meas.pressure_ = getRandomFloat();
+    meas.temperature_ = getRandomFloat();
+    meas.velocity_ = getRandomFloat();
+    return meas;
+}
 
 struct DeviceSerialConfig
 {
@@ -77,11 +95,7 @@ auto Device::setup() -> void
 
 auto Device::sendMeasurement() const -> void
 {
-    Measurement meas;
-    meas.pressure_ = 111.22;
-    meas.temperature_ = 1341.9;
-    meas.velocity_ = 888.123;
-    serialTalker_->write(Parser::toMsg(meas));
+    serialTalker_->write(Parser::toMsg(getRandomMeasurement()));
 }
 
 auto Device::setTimer(const double frequency) const -> void
