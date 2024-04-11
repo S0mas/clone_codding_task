@@ -12,4 +12,5 @@ public:
 
 private:
     std::unique_ptr<Device> device_;
+    int child_pid_{1};
 };
