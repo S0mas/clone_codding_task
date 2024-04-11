@@ -15,11 +15,11 @@ SERIAL_PORT
 - desc: Device port
 
 SIM_SERIAL_PORT_1
-- default: "/home/sim1"
+- default: "/tmp/sim1"
 - desc: Sim Device port (sim dev writes/reads to/from this port)
 
 SIM_SERIAL_PORT_2
-- default: "/home/sim2"
+- default: "/tmp/sim2"
 - desc: Sim Device port (read from write to sim device)
 
 SERVER_PORT
