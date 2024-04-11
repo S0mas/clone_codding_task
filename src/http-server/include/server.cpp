@@ -214,7 +214,7 @@ Server::Server(DeviceController& controller, Database& database)
     }
     else
     {
-        LOG_F(ERROR, "Failed to start server on http://%s:%d/", ServerConfig().address.toString().toStdString().c_str(), port);
+        LOG_F(ERROR, "Failed to start server on http://%s:%d/", ServerConfig().address.toString().toStdString().c_str(), ServerConfig().port);
     }
 }
 
