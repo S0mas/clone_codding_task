@@ -43,5 +43,19 @@ Dockerfile can be used to build the app
 BUILD:
 docker build -t clone-app:latest .
 
-EXAMPLE RUN: (SIM) 
-sudo docker run -e DISPLAY=$DISPLAY -e SIMULATION=1 -v /tmp/.X11-unix:/tmp/.X11-unix --network host -i -t clone-app:latest /clone_codding_task/build/app/clone_app
+EXAMPLE USAGE IN SIMULATION: 
+
+docker run -e DISPLAY=$DISPLAY -e SIMULATION=1 -v /tmp/.X11-unix:/tmp/.X11-unix --network host -i -t clone-app:latest /clone_codding_task/build/app/clone_app
+-> to run app
+
+NEXT:
+docker container list
+-> to get container id
+
+NEXT:
+docker exec -it container_id /bin/bash
+-> to start separate session in same container
+
+NEXT:
+curl http://localhost:7100/start
+-> to start transmission
