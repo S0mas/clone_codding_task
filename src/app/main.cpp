@@ -19,6 +19,7 @@ struct AppConfig
     AppConfig()
     {
         no_gui = QProcessEnvironment::systemEnvironment().value("NO_GUI", "0");
+        simulation = QProcessEnvironment::systemEnvironment().value("SIMULATION", "0");
     }
 
     bool runGui() const
@@ -26,7 +27,13 @@ struct AppConfig
         return no_gui == "0";
     }
 
+    bool runSimulation() const
+    {
+        return simulation == "1";
+    }
+
     QString no_gui;
+    QString simulation;
 };
 
 }
@@ -43,10 +50,21 @@ int main(int argc, char *argv[])
         app = std::make_unique<QCoreApplication>(argc, argv);
     }
 
+    std::unique_ptr<Simulator> simulator;
+    if(AppConfig().runSimulation())
+    {
+        simulator = std::make_unique<Simulator>();
+    }
+
     Database database;
-    Simulator e;
     DeviceController controller;
-    DeviceIF deviceif{controller};
+
+    std::unique_ptr<DeviceIF> deviceif;
+    if(AppConfig().runGui())
+    {
+        deviceif = std::make_unique<DeviceIF>(controller);
+    }
+
     Server server{controller};
 
     auto callback = [&database, &deviceif, &server](const std::string& msg)
@@ -55,7 +73,7 @@ int main(int argc, char *argv[])
         {
             server.setNewResponse(msg);
             database.storeResponseMsg(msg);
-            deviceif.setLastResponse(QString::fromStdString(msg));
+            deviceif->setLastResponse(QString::fromStdString(msg));
 
             if(Parser::isResponseValidConfig(msg))
             {
@@ -63,7 +81,7 @@ int main(int argc, char *argv[])
                 if(config.has_value())
                 {
                     database.replaceConfig(config.value());
-                    deviceif.setConfig(config.value());
+                    deviceif->setConfig(config.value());
                 }
             }
         }
@@ -73,7 +91,7 @@ int main(int argc, char *argv[])
             if(meas.has_value())
             {
                 database.storeMeasurementMsg(meas.value());
-                deviceif.setMeasurement(meas.value());
+                deviceif->setMeasurement(meas.value());
             }
         }
     };
@@ -83,7 +101,7 @@ int main(int argc, char *argv[])
     if(AppConfig().runGui())
     {
         QVariantMap map;
-        map.insert("deviceif", QVariant::fromValue(&deviceif));
+        map.insert("deviceif", QVariant::fromValue(deviceif.get()));
 
         engine = std::make_unique<QQmlApplicationEngine>() ;
         engine->setInitialProperties(map);
