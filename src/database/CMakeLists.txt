@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT}
     PRIVATE
     Qt6::Core Qt6::Sql
     clone_common
+    loguru
 )
 
 add_compile_options("/std:c++latest")

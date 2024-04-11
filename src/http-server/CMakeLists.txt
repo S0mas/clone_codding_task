@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT}
     clone_device-controller
     clone_common
     clone_parser
+    loguru
 )
 
 add_compile_options("/std:c++latest")

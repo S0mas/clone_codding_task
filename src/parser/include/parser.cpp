@@ -1,5 +1,7 @@
 #include "parser.hpp"
 
+#include <loguru.hpp>
+
 #include <cstdint>
 #include <limits>
 #include <sstream>
@@ -9,7 +11,7 @@ auto toBool(const std::string& token) -> std::optional<bool>
     std::istringstream valuesreader{token};
     bool value;
     valuesreader >> value;
-    if (valuesreader.fail())
+    if(valuesreader.fail())
     {
         if(token == "true" || token == "TRUE")
         {
@@ -67,6 +69,7 @@ auto Parser::parseMeasurement(const std::string& msg) -> std::optional<Measureme
 
     if(iss.fail())
     {
+        LOG_F(ERROR, "Failed to parse msg as measurement, msg: %s", msg.c_str());
         return std::nullopt;
     }
     return m;
@@ -81,7 +84,7 @@ auto Parser::parseConfigFromTokens(const std::string& frequencyToken, const std:
     }
     else
     {
-        // invalid value
+        LOG_F(ERROR, "Failed to parse token as frequency(uint8), token: %s", frequencyToken.c_str());
         return std::nullopt;
     }
 
@@ -91,7 +94,7 @@ auto Parser::parseConfigFromTokens(const std::string& frequencyToken, const std:
     }
     else
     {
-        // invalid value
+        LOG_F(ERROR, "Failed to parse token as debug(bool), token: %s", debugToken.c_str());
         return std::nullopt;
     }
     return c;
@@ -125,7 +128,7 @@ auto Parser::parseRequestConfig(const std::string& msg) -> std::optional<Configu
     std::getline(iss, debug, ',');
     if(!iss.eof())
     {
-        // too many values
+        LOG_F(ERROR, "Failed to parse msg as configuration, msg: %s", msg.c_str());
         return std::nullopt;
     }
 
@@ -139,6 +142,7 @@ auto Parser::parseMessageId(const std::string& msg, std::string& errorReason) ->
     if(inpstream.get() != msgStartSymbol)
     {
         errorReason = "msg should start with '$'";
+        LOG_F(ERROR, "Failed to parse msg, msg: %s, reason: %s", msg.c_str(), errorReason.c_str());
         return std::nullopt;
     }
 
@@ -147,17 +151,16 @@ auto Parser::parseMessageId(const std::string& msg, std::string& errorReason) ->
     if(inpstream.fail())
     {
         errorReason = "msg id is invalid";
+        LOG_F(ERROR, "Failed to parse msg, msg: %s, reason: %s", msg.c_str(), errorReason.c_str());
         return MessageId::INVALID;
     }
 
     if(id == 0)
     {
-        //qDebug() << __func__ << ": start transmition id";
         return MessageId::START_TRANSMISSION;
     }
     if(id == 1)
     {
-        //qDebug() << __func__ << ": stop transmition id";
         return MessageId::STOP_TRANSMISSION;
     }
     if(id == 2)
@@ -165,6 +168,7 @@ auto Parser::parseMessageId(const std::string& msg, std::string& errorReason) ->
         return MessageId::SET_CONFIGURATION;
     }
     errorReason = "msg id is unknown";
+    LOG_F(ERROR, "Failed to parse msg, msg: %s, reason: %s", msg.c_str(), errorReason.c_str());
     return std::nullopt;
 }
 

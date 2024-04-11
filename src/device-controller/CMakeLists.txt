@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT}
     PRIVATE
     clone_serial-talker
     clone_common
+    loguru
 )
 
 add_compile_options("/std:c++latest")

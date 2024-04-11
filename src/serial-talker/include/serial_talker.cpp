@@ -1,6 +1,7 @@
 #include "serial_talker.hpp"
 
-#include <QDebug>
+#include <loguru.hpp>
+
 #include <QSerialPort>
 #include <QProcessEnvironment>
 
@@ -15,8 +16,8 @@ struct SerialConfig
         baudrate = QProcessEnvironment::systemEnvironment().value("SERIAL_BAUDRATE", "115000").toInt(&okBaudRate);
         if(!okBaudRate)
         {
-            // invalid baudrate
             baudrate = 115000;
+            LOG_F(ERROR, "SERIAL_BAUDRATE value is invalid, default will be used, default: %d", baudrate);
         }
     }
 
@@ -27,7 +28,7 @@ struct SerialConfig
 
 SerialTalker::SerialTalker(QString name)
     : portName_{std::move(name)}
-    , readCallback_{[](auto const& msg){ qDebug() << "no read callback set"; }}
+    , readCallback_{[this](auto const& msg){ LOG_F(ERROR, "No read callback set for serial port, name: %s", portName_.toStdString().c_str()); }}
 {
     openPort();
 }
@@ -73,11 +74,11 @@ auto SerialTalker::openPort() -> void
     const auto result = port->open(QIODeviceBase::ReadWrite | QIODeviceBase::ExistingOnly);
     if(!result)
     {
-        qDebug() << "Error: " << port->errorString();
+        LOG_F(ERROR, "Failed to open serial port, name: %s, reason: %s", portName_.toStdString().c_str(), port->errorString().toStdString().c_str());
     }
     else
     {
-        qDebug() << "Sucess!";
+        LOG_F(INFO, "Opened serial port, name: %s", portName_.toStdString().c_str());
     }
 }
 
@@ -85,7 +86,7 @@ auto SerialTalker::closePort() -> void
 {
     if(auto dev = stream_.device(); dev)
     {
-        qDebug() << __func__ << ": " << portName_;
+        LOG_F(INFO, "Closed serial port, name: %s", portName_.toStdString().c_str());
         dev->close();
         stream_.setDevice(nullptr);
         dev->deleteLater();

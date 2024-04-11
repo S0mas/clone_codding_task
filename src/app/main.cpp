@@ -4,6 +4,7 @@
 #include <database.hpp>
 #include <device_controller.hpp>
 #include <server.hpp>
+#include <loguru.hpp>
 
 #include <QGuiApplication>
 #include <QCoreApplication>
@@ -43,6 +44,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<QCoreApplication> app;
     if(AppConfig().runGui())
     {
+        LOG_F(INFO, "Starting with gui support");
         app = std::make_unique<QGuiApplication>(argc, argv);
     }
     else
@@ -53,6 +55,7 @@ int main(int argc, char *argv[])
     std::unique_ptr<Simulator> simulator;
     if(AppConfig().runSimulation())
     {
+        LOG_F(INFO, "Starting the simulation");
         simulator = std::make_unique<Simulator>();
     }
 
@@ -69,6 +72,7 @@ int main(int argc, char *argv[])
 
     auto callback = [&database, &deviceif, &server](const std::string& msg)
     {
+        LOG_F(INFO, "Recived msg from the device %s", msg.c_str());
         if(Parser::isResponse(msg))
         {
             server.setNewResponse(msg);

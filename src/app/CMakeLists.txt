@@ -36,4 +36,5 @@ target_link_libraries(${PROJECT}
     clone_database
     clone_common
     clone_parser
+    loguru
 )

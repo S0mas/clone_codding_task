@@ -1,9 +1,12 @@
 #include "database.hpp"
 
+#include <loguru.hpp>
+
 #include <QProcessEnvironment>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSqlResult>
 
 namespace
 {
@@ -39,14 +42,32 @@ auto Database::storeResponseMsg(const std::string& msg) const -> void
 {
     QSqlQuery query;
     query.prepare(QString("INSERT INTO responses (msg) VALUES('%1')").arg(QString::fromStdString(msg)));
-    query.exec();
+    const auto result = query.exec();
+
+    if(result)
+    {
+        LOG_F(INFO, "Stored response from the device in database, response: %s", msg.c_str());
+    }
+    else
+    {
+        LOG_F(ERROR, "Failed to store response from the device in database, reason: %s", query.lastError().text().toStdString().c_str());
+    }
 }
 
 auto Database::replaceConfig(const Configuration& config) const -> void
 {
     QSqlQuery query;
     query.prepare(QString("REPLACE INTO config (id, frequency, debug) VALUES(0, %1, %2)").arg(config.frequency_).arg(config.debug_));
-    query.exec();
+    const auto result = query.exec();
+
+    if(result)
+    {
+        LOG_F(INFO, "Replaced device configuration in database, frequency: %d, debug: %d", config.frequency_, config.debug_);
+    }
+    else
+    {
+        LOG_F(ERROR, "Failed to replace device configuration in database, reason: %s", query.lastError().text().toStdString().c_str());
+    }
 }
 
 auto Database::openConnection() -> void
@@ -55,7 +76,10 @@ auto Database::openConnection() -> void
     db.setDatabaseName(DatabaseConfig().databaseFileName);
     if(!db.open())
     {
-        qDebug() << "dabase failure reason: " << db.lastError();
+        LOG_F(ERROR, "Failed to open database, path: %s reason: %s", DatabaseConfig().databaseFileName.toStdString().c_str(), db.lastError().text().toStdString().c_str());
+    }
+    {
+        LOG_F(INFO, "Database opened successfully path: %s", DatabaseConfig().databaseFileName.toStdString().c_str());
     }
 }
 

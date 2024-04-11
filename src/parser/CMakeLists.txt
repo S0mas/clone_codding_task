@@ -22,6 +22,7 @@ target_include_directories(${PROJECT}
 target_link_libraries(${PROJECT}
     PRIVATE
     clone_common
+    loguru
 )
 add_compile_options("/std:c++latest")
 target_compile_definitions(${PROJECT} PRIVATE clone_parser_LIBRARY)

@@ -24,6 +24,7 @@ target_include_directories(${PROJECT}
 target_link_libraries(${PROJECT}
     PUBLIC
     Qt6::Core Qt6::SerialPort
+    loguru
 )
 
 add_compile_options("/std:c++latest")

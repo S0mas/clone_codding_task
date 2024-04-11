@@ -1,5 +1,6 @@
 #include "device_controller.hpp"
-#include "serial_talker.hpp"
+#include <serial_talker.hpp>
+#include <loguru.hpp>
 
 #include <QProcessEnvironment>
 #include <QString>
@@ -36,16 +37,19 @@ DeviceController::~DeviceController() = default;
 
 auto DeviceController::start() -> void
 {
+    LOG_F(INFO, "Sending start transmission request to the device");
     serialTalker_->write("$0");
 }
 
 auto DeviceController::stop() -> void
 {
+    LOG_F(INFO, "Sending stop transmission request to the device");
     serialTalker_->write("$1");
 }
 
 auto DeviceController::configure(const Configuration& config) -> void
 {
+    LOG_F(INFO, "Sending new configuration to the device, frequency: %d, debug: %d" , config.frequency_, config.debug_);
     serialTalker_->write(QString("$2,%1,%2").arg(config.frequency_).arg(config.debug_).toStdString());
 }
 

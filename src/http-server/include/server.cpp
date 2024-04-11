@@ -2,6 +2,7 @@
 
 #include <configuration.hpp>
 #include <parser.hpp>
+#include <loguru.hpp>
 
 #include <QtHttpServer>
 #include <QJsonDocument>
@@ -21,14 +22,14 @@ struct ServerConfig
         port = QProcessEnvironment::systemEnvironment().value("SERVER_PORT", "7100").toInt(&okPort);
         if(!okPort)
         {
-            // invalid port
+            LOG_F(WARNING, "SERVER_PORT value is invalid, using default port: %d", port);
             port = 7100;
         }
 
         address = QHostAddress(QProcessEnvironment::systemEnvironment().value("SERVER_ADDRESS", ""));
         if(address.isNull())
         {
-            // invalid address
+            LOG_F(WARNING, "SERVER_ADDRESS value is empty or invalid, using default port: %d", port);
             address = QHostAddress::LocalHost;
         }
     }
@@ -98,9 +99,9 @@ Server::Server(DeviceController& controller)
     : controller_{controller}
     , server_{std::make_unique<QHttpServer>()}
 {
-
     server_->route("/start", QHttpServerRequest::Method::Get,
                    [&controller, this](const QHttpServerRequest &request) {
+                       LOG_F(INFO, "Server recived start transmission request");
                        controller.start();
                        return sendResponse();
                    }
@@ -108,6 +109,7 @@ Server::Server(DeviceController& controller)
 
     server_->route("/stop", QHttpServerRequest::Method::Get,
                    [&controller, this](const QHttpServerRequest &request) {
+                       LOG_F(INFO, "Server recived stop transmission request");
                        controller.stop();
                        return sendResponse();
                    }
@@ -115,12 +117,14 @@ Server::Server(DeviceController& controller)
 
     server_->route("/configure",
                    [&controller, this](const QHttpServerRequest &request) {
+                       LOG_F(INFO, "Server recived configure request");
                        return addConfig(request, controller);
                    }
                    );
 
     server_->route("/messages/<arg>", QHttpServerRequest::Method::Get,
                    [&controller, this](int numberOfMessagesToReturn, const QHttpServerRequest &request) {
+                       LOG_F(INFO, "Server recived messages request");
                        controller.start();
                        return sendResponse();
                    }
@@ -128,6 +132,7 @@ Server::Server(DeviceController& controller)
 
     server_->route("/device", QHttpServerRequest::Method::Put,
                    [&controller, this](const QHttpServerRequest &request) {
+                       LOG_F(INFO, "Server recived device request");
                        controller.start();
                        return sendResponse();
                    }
@@ -135,11 +140,11 @@ Server::Server(DeviceController& controller)
 
     if(auto port = server_->listen(ServerConfig().address, ServerConfig().port); port != 0)
     {
-        qDebug() << QCoreApplication::translate("HttpServer", "Running on http://%1:%2/").arg(ServerConfig().address.toString()).arg(port);
+        LOG_F(INFO, "HttpServer, running on http://%s:%d/", ServerConfig().address.toString().toStdString().c_str(), port);
     }
     else
     {
-        qDebug() << "Server error!";
+        LOG_F(ERROR, "Failed to start server on http://%s:%d/", ServerConfig().address.toString().toStdString().c_str(), port);
     }
 }
 
@@ -171,7 +176,14 @@ auto Server::waitForResponse(int ms) -> void
 auto Server::sendResponse() -> QHttpServerResponse
 {
     waitForResponse();
-    return response_.has_value() ?
-               QHttpServerResponse(QString::fromStdString(takeResponse())) :
-               QHttpServerResponse(QHttpServerResponse::StatusCode::RequestTimeout);
+    if(response_.has_value())
+    {
+        LOG_F(INFO, "Server recived response from the device, response: %s", response_.value().c_str());
+        return QHttpServerResponse(QString::fromStdString(takeResponse()));
+    }
+    else
+    {
+        LOG_F(ERROR, "Timeout reached while server was waiting for the response from the device");
+        return QHttpServerResponse(QHttpServerResponse::StatusCode::RequestTimeout);
+    }
 }

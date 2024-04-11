@@ -1,10 +1,10 @@
 #include "device.h"
 
 #include <measurement.hpp>
+#include <loguru.hpp>
 #include <parser.hpp>
 #include <serial_talker.hpp>
 
-#include <QDebug>
 #include <QProcessEnvironment>
 #include <QTimer>
 
@@ -36,20 +36,21 @@ Device::~Device() = default;
 
 auto Device::startTransmission() const -> void
 {
-    qDebug() << __func__;
+    LOG_F(INFO, "Device sim received start transmission request");
     messageSenderTimer_->start();
     responseSuccess(currentMsg_);
 }
 
 auto Device::stopTransmission() const -> void
 {
-    qDebug() << __func__;
+    LOG_F(INFO, "Device sim received stop transmission request");
     messageSenderTimer_->stop();
     responseSuccess(currentMsg_);
 }
 
 auto Device::setConfiguration(const Configuration& newConfig) -> void
 {
+    LOG_F(INFO, "Device sim received start configuration request, frequency: %d, debug: %d", newConfig.frequency_, newConfig.debug_);
     configuration_ = newConfig;
     setTimer(configuration_.frequency_);
     responseSuccess(currentMsg_);
@@ -57,7 +58,6 @@ auto Device::setConfiguration(const Configuration& newConfig) -> void
 
 auto Device::setup() -> void
 {
-    qDebug() << __func__;
     QObject::connect(&messageProcessor_, &MessageProcessor::startTransmission, this, &Device::startTransmission);
     QObject::connect(&messageProcessor_, &MessageProcessor::stopTransmission, this, &Device::stopTransmission);
     QObject::connect(&messageProcessor_, &MessageProcessor::setConfiguration, this, &Device::setConfiguration);
@@ -69,7 +69,7 @@ auto Device::setup() -> void
     QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendMeasurement);
     serialTalker_->setOnReadCallback([this](auto const& msg)
                                      {
-                                         qDebug() << "DeviceSim received msg: " << QString::fromStdString(msg);
+                                         LOG_F(INFO, "Device sim received start msg, msg: %s", msg.c_str());
                                          currentMsg_ = msg;
                                          messageProcessor_.processMessage(msg);
                                      });
@@ -88,6 +88,7 @@ auto Device::setTimer(const double frequency) const -> void
 {
     if(frequency == 0)
     {
+        LOG_F(WARNING, "Frequency set to 0, setting the measurement interval to %d ms", std::numeric_limits<int>::max());
         messageSenderTimer_->setInterval(std::numeric_limits<int>::max());
     }
     else
@@ -99,7 +100,7 @@ auto Device::setTimer(const double frequency) const -> void
 
 auto Device::reportError(const std::string& msg, const std::string& errorMsg) const -> void
 {
-    qDebug() << __func__ << ": " << errorMsg.c_str();
+    LOG_F(ERROR, "Device sim reports error on msg: %s, error: %s", msg.c_str(), errorMsg.c_str());
 }
 
 auto Device::responseSuccess(const std::string& msg) const -> void
@@ -114,6 +115,6 @@ auto Device::responseFailure(const std::string& msg, const std::string& errorMsg
 
 auto Device::response(const std::string& msg) const -> void
 {
-    qDebug() << "Device::response " << msg.c_str();
+    LOG_F(INFO, "Device sim sends response, response: %s", msg.c_str());
     serialTalker_->write(msg);
 }

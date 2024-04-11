@@ -1,6 +1,7 @@
 #include "simulator.hpp"
 
 #include "device.h"
+#include <loguru.hpp>
 
 #include <QProcessEnvironment>
 #include <thread>
@@ -8,6 +9,7 @@
 
 Simulator::Simulator()
 {
+    LOG_F(INFO, "Fork for simulation..");
     child_pid_ = fork();
     if(child_pid_ == 0)
     {
@@ -22,7 +24,16 @@ Simulator::Simulator()
         argv[3] = arg2.c_str();
         argv[4] = NULL;
 
+        LOG_F(INFO, "Starting socat from child, args: %s %s %s %s", argv[0], argv[1], argv[2], argv[3]);
         execvp("socat", const_cast<char**>(argv));
+        auto errorCode = errno;
+
+        LOG_F(ERROR, "execvp failed, error code: %d, calling exit..", errorCode);
+        exit(errorCode);
+    }
+    else
+    {
+        LOG_F(INFO, ".. fork pid: %d", child_pid_);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -31,5 +42,8 @@ Simulator::Simulator()
 
 Simulator::~Simulator()
 {
-    kill(child_pid_, SIGTERM);
+    if(child_pid_ > 0)
+    {
+        kill(child_pid_, SIGTERM);  // what if child failed to execute ?
+    }
 };
