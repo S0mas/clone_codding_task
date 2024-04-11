@@ -84,6 +84,7 @@ auto Device::setup() -> void
 
     serialTalker_ = std::make_unique<SerialTalker>(DeviceSerialConfig().port);
     messageSenderTimer_ = new QTimer(this);
+    messageSenderTimer_->setInterval(1000);
     QObject::connect(messageSenderTimer_, &QTimer::timeout, this, &Device::sendMeasurement);
     serialTalker_->setOnReadCallback([this](auto const& msg)
                                      {
