@@ -30,8 +30,7 @@ RUN apt-get -y install qml6-module-qtquick-controls
 RUN apt-get -y install qml6-module-qtquick-templates
 RUN apt-get -y install qml6-module-qtquick-layouts
 RUN apt-get -y install qml6-module-qtqml-workerscript
-
+RUN apt-get -y install curl
 RUN git clone https://github.com/S0mas/clone_codding_task.git
-
 RUN /usr/lib/qt6/bin/qt-cmake -G Ninja -S clone_codding_task/src -B clone_codding_task/build
 RUN ninja -C clone_codding_task/build
