@@ -18,7 +18,7 @@ struct DeviceControllerSerialConfig
         }
         else
         {
-            port = QProcessEnvironment::systemEnvironment().value("SIM_SERIAL_PORT_2", "/home/s0mas/sim2");
+            port = QProcessEnvironment::systemEnvironment().value("SIM_SERIAL_PORT_2", "/home/sim2");
         }
     }
 

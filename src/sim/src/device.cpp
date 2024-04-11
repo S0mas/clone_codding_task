@@ -17,7 +17,7 @@ struct DeviceSerialConfig
 {
     DeviceSerialConfig()
     {
-        port = QProcessEnvironment::systemEnvironment().value("SIM_SERIAL_PORT_1", "/home/s0mas/sim1");
+        port = QProcessEnvironment::systemEnvironment().value("SIM_SERIAL_PORT_1", "/home/sim1");
     }
 
     QString port;
