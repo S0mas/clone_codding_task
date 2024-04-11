@@ -37,7 +37,6 @@ auto calcMeanMeas(const std::vector<Measurement>& measurements) -> Measurement
     return Measurement{mean_preasure, mean_temperature, mean_velocity};
 }
 
-
 auto prepareDeviceState(const std::optional<Configuration>& currentConfig, const std::optional<Measurement>& mean10, const std::optional<Measurement> last) -> QJsonObject
 {
     QJsonObject curr_config;
@@ -67,6 +66,22 @@ auto prepareDeviceState(const std::optional<Configuration>& currentConfig, const
     json.insert("curr_config", curr_config);
     json.insert("mean_last_10", mean_last_10);
     json.insert("latest", latest);
+    return json;
+}
+
+auto prepareLastMeasurements(const std::vector<Measurement>& measurements) -> QJsonObject
+{
+    QJsonObject json;
+
+    for(int i = 0; const auto& measurement : measurements)
+    {
+        QJsonObject meas;
+
+        meas.insert("pressure", measurement.pressure_);
+        meas.insert("temperature", measurement.temperature_);
+        meas.insert("velocity", measurement.velocity_);
+        json.insert(std::to_string(i++).c_str(), meas);
+    }
     return json;
 }
 
@@ -179,11 +194,10 @@ Server::Server(DeviceController& controller, Database& database)
                    }
                    );
 
-    server_->route("/messages/<arg>", QHttpServerRequest::Method::Get,
-                   [&controller, this](int numberOfMessagesToReturn, const QHttpServerRequest &request) {
+    server_->route("/messages", QHttpServerRequest::Method::Get,
+                   [&controller, this](const QHttpServerRequest &request) {
                        LOG_F(INFO, "Server recived messages request");
-                       controller.start();
-                       return sendResponse();
+                       return QHttpServerResponse(prepareLastMeasurements(database_.lastMeasurements(request.query().queryItemValue("limit").toInt())));
                    }
                    );
 

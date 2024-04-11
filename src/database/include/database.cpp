@@ -105,12 +105,14 @@ auto Database::lastMeasurements(const int max) const -> std::vector<Measurement>
 {
     QSqlQuery query;
     query.prepare("SELECT * FROM measurements");
-    const auto result = query.exec();
+    const auto result = query.exec() && query.last(); // pos to the last record
     std::vector<Measurement> measurements;
     int i = 0;
-    while(result && query.next() && i++ < max)
+    auto isRecordAvailable = query.last();
+    while(result && isRecordAvailable && i++ < max)
     {
         measurements.push_back({query.value("pressure").toDouble(), query.value("temperature").toDouble(), query.value("velocity").toDouble()});
+        isRecordAvailable = query.previous();
     }
     return measurements;
 }
