@@ -1,6 +1,7 @@
 #include "server.hpp"
 
 #include <configuration.hpp>
+#include <database.hpp>
 #include <parser.hpp>
 #include <loguru.hpp>
 
@@ -13,6 +14,61 @@
 
 namespace
 {
+auto calcMeanMeas(const std::vector<Measurement>& measurements) -> Measurement
+{
+    // double will be enough as th real data is float16
+    double mean_preasure = 0;
+    double mean_temperature = 0;
+    double mean_velocity = 0;
+
+    for(const auto& meas : measurements)
+    {
+        mean_preasure += meas.pressure_;
+        mean_temperature += meas.temperature_;
+        mean_velocity += meas.velocity_;
+    }
+    if(!measurements.empty())
+    {
+        mean_preasure /= measurements.size();
+        mean_temperature /= measurements.size();
+        mean_velocity /= measurements.size();
+    }
+
+    return Measurement{mean_preasure, mean_temperature, mean_velocity};
+}
+
+
+auto prepareDeviceState(const std::optional<Configuration>& currentConfig, const std::optional<Measurement>& mean10, const std::optional<Measurement> last) -> QJsonObject
+{
+    QJsonObject curr_config;
+    if(currentConfig.has_value())
+    {
+        curr_config.insert("frequency", currentConfig->frequency_);
+        curr_config.insert("debug", currentConfig->debug_);
+    }
+
+    QJsonObject mean_last_10;
+    if(mean10.has_value())
+    {
+        mean_last_10.insert("pressure", mean10->pressure_);
+        mean_last_10.insert("temperature", mean10->temperature_);
+        mean_last_10.insert("velocity", mean10->velocity_);
+    }
+
+    QJsonObject latest;
+    if(last.has_value())
+    {
+        latest.insert("pressure", last->pressure_);
+        latest.insert("temperature", last->temperature_);
+        latest.insert("velocity", last->velocity_);
+    }
+
+    QJsonObject json;
+    json.insert("curr_config", curr_config);
+    json.insert("mean_last_10", mean_last_10);
+    json.insert("latest", latest);
+    return json;
+}
 
 struct ServerConfig
 {
@@ -95,8 +151,9 @@ QHttpServerResponse addConfig(const QHttpServerRequest& request, DeviceControlle
     return QHttpServerResponse(QHttpServerResponder::StatusCode::Ok);
 }
 
-Server::Server(DeviceController& controller)
+Server::Server(DeviceController& controller, Database& database)
     : controller_{controller}
+    , database_{database}
     , server_{std::make_unique<QHttpServer>()}
 {
     server_->route("/start", QHttpServerRequest::Method::Get,
@@ -130,11 +187,10 @@ Server::Server(DeviceController& controller)
                    }
                    );
 
-    server_->route("/device", QHttpServerRequest::Method::Put,
+    server_->route("/device", QHttpServerRequest::Method::Get,
                    [&controller, this](const QHttpServerRequest &request) {
-                       LOG_F(INFO, "Server recived device request");
-                       controller.start();
-                       return sendResponse();
+                       LOG_F(INFO, "Server recived device state request");
+                       return QHttpServerResponse(prepareDeviceState(currentConfiguration(), meanLast10Measurement(), lastMeasurement()));
                    }
                    );
 
@@ -187,3 +243,23 @@ auto Server::sendResponse() -> QHttpServerResponse
         return QHttpServerResponse(QHttpServerResponse::StatusCode::RequestTimeout);
     }
 }
+
+auto Server::lastMeasurement() -> std::optional<Measurement>
+{
+    return database_.lastMeasurement();
+}
+
+auto Server::meanLast10Measurement() -> std::optional<Measurement>
+{
+    if(const auto& measurements = database_.lastMeasurements(10); !measurements.empty())
+    {
+        return calcMeanMeas(measurements);
+    }
+    return std::nullopt;
+}
+
+auto Server::currentConfiguration() -> std::optional<Configuration>
+{
+    return database_.currentConfiguration();
+}
+

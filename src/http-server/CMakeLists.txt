@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT}
     clone_common
     clone_parser
     loguru
+    clone_database
 )
 
 add_compile_options("/std:c++latest")

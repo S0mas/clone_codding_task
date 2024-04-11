@@ -6,7 +6,6 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
-#include <QSqlResult>
 
 namespace
 {
@@ -68,6 +67,52 @@ auto Database::replaceConfig(const Configuration& config) const -> void
     {
         LOG_F(ERROR, "Failed to replace device configuration in database, reason: %s", query.lastError().text().toStdString().c_str());
     }
+}
+
+auto Database::currentConfiguration() const -> std::optional<Configuration>
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM config");
+    const auto result = query.exec();
+    if(result && query.next())
+    {
+        return Configuration(query.value("frequency").toInt(), query.value("debug").toBool());
+    }
+    else
+    {
+        LOG_F(ERROR, "Failed to select currentConfiguration from database, reason: %s", query.lastError().text().toStdString().c_str());
+    }
+    return std::nullopt;
+}
+
+auto Database::lastMeasurement() const -> std::optional<Measurement>
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM measurements");
+    const auto result = query.exec();
+    if(result && query.last())
+    {
+        return Measurement(query.value("pressure").toDouble(), query.value("temperature").toDouble(), query.value("velocity").toDouble());
+    }
+    else
+    {
+        LOG_F(ERROR, "Failed to select last measurement from database, reason: %s", query.lastError().text().toStdString().c_str());
+    }
+    return std::nullopt;
+}
+
+auto Database::lastMeasurements(const int max) const -> std::vector<Measurement>
+{
+    QSqlQuery query;
+    query.prepare("SELECT * FROM measurements");
+    const auto result = query.exec();
+    std::vector<Measurement> measurements;
+    int i = 0;
+    while(result && query.next() && i++ < max)
+    {
+        measurements.push_back({query.value("pressure").toDouble(), query.value("temperature").toDouble(), query.value("velocity").toDouble()});
+    }
+    return measurements;
 }
 
 auto Database::openConnection() -> void

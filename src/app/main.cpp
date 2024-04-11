@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
         deviceif = std::make_unique<DeviceIF>(controller);
     }
 
-    Server server{controller};
+    Server server{controller, database};
 
     auto callback = [&database, &deviceif, &server](const std::string& msg)
     {
