@@ -37,3 +37,11 @@ SERIAL_BAUDRATE
 NO_GUI
 - default: "0"
 - desc: Will run app without gui when != 0
+
+Dockerfile can be used to build the app
+
+BUILD:
+docker build -t clone-app:latest .
+
+EXAMPLE RUN: (SIM) 
+sudo docker run -e DISPLAY=$DISPLAY -e SIMULATION=1 -v /tmp/.X11-unix:/tmp/.X11-unix --network host -i -t clone-app:latest /clone_codding_task/build/app/clone_app
